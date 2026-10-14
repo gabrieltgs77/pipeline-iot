@@ -1,0 +1,25 @@
+# PostgreSQL para o pipeline IoT.
+# Subir:   docker compose up -d
+# Parar:   docker compose down        (mantém os dados)
+# Resetar: docker compose down -v     (apaga os dados)
+services:
+  db:
+    image: postgres:16
+    container_name: postgres-iot
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+      POSTGRES_DB: ${DB_NAME:-iot_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-iot_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
